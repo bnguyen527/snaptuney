@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/configurationsFragment">
+
+    <fragment
+        android:id="@+id/configurationsFragment"
+        android:name="com.github.bnguyen527.snaptuney.ConfigurationsFragment"
+        android:label="fragment_configurations"
+        tools:layout="@layout/fragment_configurations" >
+        <action
+            android:id="@+id/action_create_playlist"
+            app:destination="@id/resultFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/resultFragment"
+        android:name="com.github.bnguyen527.snaptuney.ResultFragment"
+        android:label="fragment_result"
+        tools:layout="@layout/fragment_result" >
+        <action
+            android:id="@+id/action_new_configurations"
+            app:destination="@id/configurationsFragment" />
+    </fragment>
+</navigation>
