@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:id="@+id/playlistTrackTitleTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        tools:text="Playlist Track Title" />
+
+    <TextView
+        android:id="@+id/playlistTrackArtistsTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/playlistTrackTitleTextView"
+        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+        tools:text="Playlist Track Artists" />
+
+    <TextView
+        android:id="@+id/playlistTrackDurationTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        tools:text="3:42" />
+
+</RelativeLayout>
