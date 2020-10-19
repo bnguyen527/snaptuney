@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">SnapTuney</string>
+    <string name="login_button_text">Log in to Spotify</string>
+    <string name="start_making_button_text">Start making playlists!</string>
+    <string name="logged_in_text_view_text">Logged in as <b>%s</b></string>
+    <string name="duration_edit_text_hint">Target duration in minutes</string>
+    <string name="create_playlist_button_text">Create playlist</string>
+    <string name="save_playlist_button_text">Save to Spotify</string>
+    <string name="new_configurations_button_text">New configurations</string>
 </resources>
