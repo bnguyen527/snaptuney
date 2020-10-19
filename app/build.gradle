@@ -56,4 +56,7 @@ dependencies {
     implementation "androidx.navigation:navigation-fragment-ktx:$nav_version"
     implementation "androidx.navigation:navigation-ui-ktx:$nav_version"
     androidTestImplementation "androidx.navigation:navigation-testing:$nav_version"
+
+    // Spotify Android SDK Authorization Library
+    implementation project(":spotify-auth-release-1.2.3")
 }
