@@ -25,9 +25,6 @@ class WelcomeActivity : AppCompatActivity() {
                 ).build()
                 AuthorizationClient.openLoginActivity(this@WelcomeActivity, REQUEST_CODE, request)
             }
-            startMakingButton.setOnClickListener {
-                startActivity(Intent(this@WelcomeActivity, MainActivity::class.java))
-            }
         }
     }
 
@@ -41,6 +38,14 @@ class WelcomeActivity : AppCompatActivity() {
                     binding.apply {
                         loginButton.visibility = View.GONE
                         loggedInTextView.visibility = View.VISIBLE
+                        startMakingButton.setOnClickListener {
+                            startActivity(
+                                Intent(this@WelcomeActivity, MainActivity::class.java).putExtra(
+                                    EXTRA_ACCESS_TOKEN,
+                                    response.accessToken
+                                )
+                            )
+                        }
                         startMakingButton.visibility = View.VISIBLE
                     }
                     Toast.makeText(
@@ -66,6 +71,7 @@ class WelcomeActivity : AppCompatActivity() {
     }
 
     companion object {
+        const val EXTRA_ACCESS_TOKEN = "com.github.bnguyen527.snaptuney.EXTRA_ACCESS_TOKEN"
         private const val CLIENT_ID = "cceb1c861c3a4cbfb6de3c67dfc32179"
         private const val REDIRECT_URI = "com.github.bnguyen527.snaptuney://callback"
         private const val REQUEST_CODE = 1337
