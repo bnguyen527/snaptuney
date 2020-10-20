@@ -3,14 +3,20 @@ package com.github.bnguyen527.snaptuney
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import kaaes.spotify.webapi.android.SpotifyApi
+import kaaes.spotify.webapi.android.SpotifyService
 
 class MainActivity : AppCompatActivity() {
+    private lateinit var spotify: SpotifyService
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        if (intent.extras?.getString(WelcomeActivity.EXTRA_ACCESS_TOKEN) != null) {
+        intent.extras?.getString(WelcomeActivity.EXTRA_ACCESS_TOKEN)?.let { token ->
             Log.i(TAG, "Received access token")
+            spotify = SpotifyApi().setAccessToken(token).service
+            Log.i(TAG, "Got SpotifyService object")
         }
     }
 
