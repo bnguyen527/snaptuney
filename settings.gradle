@@ -1,3 +1,4 @@
+include ':spotify-web-api-android-0.4.1'
 include ':spotify-auth-release-1.2.3'
 include ':app'
 rootProject.name = "SnapTuney"
