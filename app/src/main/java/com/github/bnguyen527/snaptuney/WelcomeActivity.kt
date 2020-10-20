@@ -21,8 +21,10 @@ class WelcomeActivity : AppCompatActivity() {
         binding.apply {
             loginButton.setOnClickListener {
                 val request = AuthorizationRequest.Builder(
-                    CLIENT_ID, AuthorizationResponse.Type.TOKEN, REDIRECT_URI
-                ).build()
+                    CLIENT_ID,
+                    AuthorizationResponse.Type.TOKEN,
+                    REDIRECT_URI
+                ).setScopes(AUTH_SCOPES.toTypedArray()).build()
                 AuthorizationClient.openLoginActivity(this@WelcomeActivity, REQUEST_CODE, request)
             }
         }
@@ -74,6 +76,7 @@ class WelcomeActivity : AppCompatActivity() {
         const val EXTRA_ACCESS_TOKEN = "com.github.bnguyen527.snaptuney.EXTRA_ACCESS_TOKEN"
         private const val CLIENT_ID = "cceb1c861c3a4cbfb6de3c67dfc32179"
         private const val REDIRECT_URI = "com.github.bnguyen527.snaptuney://callback"
+        private val AUTH_SCOPES = listOf("playlist-read-private", "playlist-read-collaborative")
         private const val REQUEST_CODE = 1337
     }
 }
