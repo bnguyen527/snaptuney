@@ -8,10 +8,14 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.github.bnguyen527.snaptuney.databinding.FragmentResultBinding
+import kaaes.spotify.webapi.android.SpotifyService
 
 class ResultFragment : Fragment() {
     private var _binding: FragmentResultBinding? = null
     private val binding get() = _binding!!
+    // Reference to SpotifyService object from MainActivity
+    private var _spotify: SpotifyService? = null
+    private val spotify get() = _spotify!!
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -34,8 +38,18 @@ class ResultFragment : Fragment() {
         }
     }
 
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        _spotify = (requireActivity() as MainActivity).spotify
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        _spotify = null
     }
 }

@@ -7,7 +7,8 @@ import kaaes.spotify.webapi.android.SpotifyApi
 import kaaes.spotify.webapi.android.SpotifyService
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var spotify: SpotifyService
+    private lateinit var _spotify: SpotifyService
+    val spotify get() = _spotify
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -15,7 +16,7 @@ class MainActivity : AppCompatActivity() {
 
         intent.extras?.getString(WelcomeActivity.EXTRA_ACCESS_TOKEN)?.let { token ->
             Log.i(TAG, "Received access token")
-            spotify = SpotifyApi().setAccessToken(token).service
+            _spotify = SpotifyApi().setAccessToken(token).service
             Log.i(TAG, "Got SpotifyService object")
         }
     }
