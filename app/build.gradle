@@ -56,4 +56,11 @@ dependencies {
     implementation "androidx.navigation:navigation-fragment-ktx:$nav_version"
     implementation "androidx.navigation:navigation-ui-ktx:$nav_version"
     androidTestImplementation "androidx.navigation:navigation-testing:$nav_version"
+
+    // Spotify Android SDK Authorization Library
+    implementation project(":spotify-auth-release-1.2.3")
+
+    // Spotify Web API wrapper for Android by kaaes
+    implementation project(":spotify-web-api-android-0.4.1")
+    implementation 'com.squareup.retrofit:retrofit:1.9.0'
 }

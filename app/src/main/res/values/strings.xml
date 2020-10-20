@@ -7,4 +7,7 @@
     <string name="create_playlist_button_text">Create playlist</string>
     <string name="save_playlist_button_text">Save to Spotify</string>
     <string name="new_configurations_button_text">New configurations</string>
+    <string name="login_failed_toast_text">Login failed!</string>
+    <string name="login_canceled_toast_text">Login canceled</string>
+    <string name="login_success_toast_text">Logged in successfully!</string>
 </resources>
