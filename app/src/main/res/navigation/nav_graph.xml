@@ -22,5 +22,20 @@
         <action
             android:id="@+id/action_new_configurations"
             app:destination="@id/configurationsFragment" />
+        <argument
+            android:name="targetDuration"
+            app:argType="integer" />
+        <argument
+            android:name="firstSourceId"
+            app:argType="string" />
+        <argument
+            android:name="firstSourceOwnerId"
+            app:argType="string" />
+        <argument
+            android:name="secondSourceId"
+            app:argType="string" />
+        <argument
+            android:name="secondSourceOwnerId"
+            app:argType="string" />
     </fragment>
 </navigation>
