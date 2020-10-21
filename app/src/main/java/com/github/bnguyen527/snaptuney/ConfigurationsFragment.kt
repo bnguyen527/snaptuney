@@ -1,10 +1,13 @@
 package com.github.bnguyen527.snaptuney
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -20,6 +23,40 @@ import retrofit.RetrofitError
 private enum class PlaylistType(val description: String) {
     MY_PLAYLISTS("current user's"),
     FEATURED_PLAYLISTS("featured")
+}
+
+private class PlaylistSimpleArrayAdapter(
+    context: Context,
+    objects: List<PlaylistSimple>
+) : ArrayAdapter<PlaylistSimple>(context, 0, objects) {
+
+    override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+        val playlistItemView = convertView ?: LayoutInflater.from(context)
+            .inflate(R.layout.list_item_playlist, parent, false)
+        getItem(position)?.let { playlistItem ->
+            playlistItemView.findViewById<TextView>(R.id.playlistNameTextView).text =
+                playlistItem.name
+        }
+        return playlistItemView
+    }
+
+    override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup): View {
+        val playlistItemView = convertView ?: LayoutInflater.from(context)
+            .inflate(R.layout.list_item_playlist_dropdown, parent, false)
+        getItem(position)?.let { playlistItem ->
+            playlistItemView.apply {
+                findViewById<TextView>(R.id.playlistDropdownNameTextView).text =
+                    playlistItem.name
+                findViewById<TextView>(R.id.playlistDropdownTrackTotalTextView).text =
+                    resources.getQuantityString(
+                        R.plurals.playlist_dropdown_track_total_text_view_text,
+                        playlistItem.tracks.total,
+                        playlistItem.tracks.total
+                    )
+            }
+        }
+        return playlistItemView
+    }
 }
 
 class ConfigurationsFragment : Fragment() {
@@ -52,8 +89,15 @@ class ConfigurationsFragment : Fragment() {
         _spotify = (requireActivity() as MainActivity).spotify
 
         lifecycleScope.launch {
-            fetchPlaylistList(PlaylistType.MY_PLAYLISTS)
-            fetchPlaylistList(PlaylistType.FEATURED_PLAYLISTS)
+            val myPlaylists = fetchPlaylistList(PlaylistType.MY_PLAYLISTS)
+            val featuredPlaylists = fetchPlaylistList(PlaylistType.FEATURED_PLAYLISTS)
+            PlaylistSimpleArrayAdapter(
+                requireContext(),
+                myPlaylists.plus(featuredPlaylists)
+            ).also { adapter ->
+                binding.firstSourceSpinner.adapter = adapter
+                binding.secondSourceSpinner.adapter = adapter
+            }
         }
     }
 

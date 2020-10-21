@@ -10,4 +10,8 @@
     <string name="login_failed_toast_text">Login failed!</string>
     <string name="login_canceled_toast_text">Login canceled</string>
     <string name="login_success_toast_text">Logged in successfully!</string>
+    <plurals name="playlist_dropdown_track_total_text_view_text">
+        <item quantity="one">%d track</item>
+        <item quantity="other">%d tracks</item>
+    </plurals>
 </resources>
