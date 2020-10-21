@@ -52,6 +52,13 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 
+    // Kotlin coroutines
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.0-M1'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.0-M1'
+
+    // Lifecycle (without ViewModel or LiveData) (for LifecycleScope)
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.3.0-beta01'
+
     // Navigation component
     implementation "androidx.navigation:navigation-fragment-ktx:$nav_version"
     implementation "androidx.navigation:navigation-ui-ktx:$nav_version"
