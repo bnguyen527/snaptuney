@@ -11,10 +11,16 @@ import androidx.navigation.fragment.findNavController
 import com.github.bnguyen527.snaptuney.databinding.FragmentConfigurationsBinding
 import kaaes.spotify.webapi.android.SpotifyError
 import kaaes.spotify.webapi.android.SpotifyService
+import kaaes.spotify.webapi.android.models.PlaylistSimple
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import retrofit.RetrofitError
+
+private enum class PlaylistType(val description: String) {
+    MY_PLAYLISTS("current user's"),
+    FEATURED_PLAYLISTS("featured")
+}
 
 class ConfigurationsFragment : Fragment() {
     private var _binding: FragmentConfigurationsBinding? = null
@@ -46,26 +52,30 @@ class ConfigurationsFragment : Fragment() {
         _spotify = (requireActivity() as MainActivity).spotify
 
         lifecycleScope.launch {
-            withContext(Dispatchers.IO) {
-                try {
-                    val myPlaylists = spotify.myPlaylists
-                    Log.d(TAG, "Fetched ${myPlaylists.total} playlists")
-                    Log.i(TAG, "Fetched list of current user's playlists")
-                } catch (error: RetrofitError) {
-                    Log.e(TAG, SpotifyError.fromRetrofitError(error).toString())
-                }
-            }
-            withContext(Dispatchers.IO) {
-                try {
-                    val featuredPlaylists = spotify.featuredPlaylists.playlists
-                    Log.d(TAG, "Fetched ${featuredPlaylists.total} playlists")
-                    Log.i(TAG, "Fetched list of featured playlists")
-                } catch (error: RetrofitError) {
-                    Log.e(TAG, SpotifyError.fromRetrofitError(error).toString())
-                }
-            }
+            fetchPlaylistList(PlaylistType.MY_PLAYLISTS)
+            fetchPlaylistList(PlaylistType.FEATURED_PLAYLISTS)
         }
     }
+
+    /**
+     * Returns fetched list of playlists of type [playlistType] and empty list when API request
+     * response is an error.
+     */
+    private suspend fun fetchPlaylistList(playlistType: PlaylistType) =
+        withContext(Dispatchers.IO) {
+            try {
+                val playlistsPager = when (playlistType) {
+                    PlaylistType.MY_PLAYLISTS -> spotify.myPlaylists
+                    PlaylistType.FEATURED_PLAYLISTS -> spotify.featuredPlaylists.playlists
+                }
+                Log.d(TAG, "Fetched ${playlistsPager.total} playlists")
+                Log.i(TAG, "Fetched list of ${playlistType.description} playlists")
+                playlistsPager.items
+            } catch (error: RetrofitError) {
+                Log.e(TAG, SpotifyError.fromRetrofitError(error).toString())
+                emptyList<PlaylistSimple>()
+            }
+        }
 
     override fun onDestroyView() {
         super.onDestroyView()
