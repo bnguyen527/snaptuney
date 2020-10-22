@@ -79,19 +79,17 @@ class ConfigurationsFragment : Fragment() {
 
         binding.apply {
             createPlaylistButton.setOnClickListener {
-                with(binding) {
-                    val firstSource = firstSourceSpinner.selectedItem as PlaylistSimple
-                    val secondSource = secondSourceSpinner.selectedItem as PlaylistSimple
-                    findNavController().navigate(
-                        ConfigurationsFragmentDirections.actionCreatePlaylist(
-                            durationEditText.text.toString().toInt(),
-                            firstSource.id,
-                            firstSource.owner.id,
-                            secondSource.id,
-                            secondSource.owner.id
-                        )
+                val firstSource = firstSourceSpinner.selectedItem as PlaylistSimple
+                val secondSource = secondSourceSpinner.selectedItem as PlaylistSimple
+                findNavController().navigate(
+                    ConfigurationsFragmentDirections.actionCreatePlaylist(
+                        durationEditText.text.toString().toInt(),
+                        firstSource.id,
+                        firstSource.owner.id,
+                        secondSource.id,
+                        secondSource.owner.id
                     )
-                }
+                )
             }
         }
     }
@@ -107,8 +105,10 @@ class ConfigurationsFragment : Fragment() {
                 requireContext(),
                 myPlaylists.plus(featuredPlaylists)
             ).also { adapter ->
-                binding.firstSourceSpinner.adapter = adapter
-                binding.secondSourceSpinner.adapter = adapter
+                binding.apply {
+                    firstSourceSpinner.adapter = adapter
+                    secondSourceSpinner.adapter = adapter
+                }
             }
         }
     }
