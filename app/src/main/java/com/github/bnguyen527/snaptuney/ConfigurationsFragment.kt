@@ -32,7 +32,7 @@ private class PlaylistSimpleArrayAdapter(
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         val playlistItemView = convertView ?: LayoutInflater.from(context)
-            .inflate(R.layout.list_item_playlist, parent, false)
+            .inflate(R.layout.spinner_item_playlist, parent, false)
         getItem(position)?.let { playlistItem ->
             playlistItemView.findViewById<TextView>(R.id.playlistNameTextView).text =
                 playlistItem.name
@@ -42,7 +42,7 @@ private class PlaylistSimpleArrayAdapter(
 
     override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup): View {
         val playlistItemView = convertView ?: LayoutInflater.from(context)
-            .inflate(R.layout.list_item_playlist_dropdown, parent, false)
+            .inflate(R.layout.spinner_dropdown_item_playlist, parent, false)
         getItem(position)?.let { playlistItem ->
             playlistItemView.apply {
                 findViewById<TextView>(R.id.playlistDropdownNameTextView).text =
