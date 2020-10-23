@@ -19,16 +19,16 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import retrofit.RetrofitError
-import kotlin.math.roundToInt
+import kotlin.math.roundToLong
 
-private typealias PlaylistTrackWithDurationSeconds = Pair<PlaylistTrack, Int>
+private typealias PlaylistTrackWithDurationSeconds = Pair<PlaylistTrack, Long>
 
 /**
  * Represents a tracklist to be created object with input sources [firstSource] and [secondSource]
  * and a target duration of [targetDuration] minutes.
  */
 private class Tracklist(
-    val targetDuration: Int,
+    val targetDuration: Long,
     val firstSource: List<PlaylistTrack>,
     val secondSource: List<PlaylistTrack>
 ) {
@@ -74,9 +74,7 @@ private class Tracklist(
         Log.d(
             TAG,
             "Tracklist of ${tracklist.size} track(s) and of length ${
-                DateUtils.formatElapsedTime(
-                    targetDuration.times(60).minus(secondsToTarget).toLong()
-                )
+                DateUtils.formatElapsedTime(targetDuration.times(60).minus(secondsToTarget))
             }"
         )
         Log.i(TAG, "Tracklist initialized")
@@ -85,7 +83,7 @@ private class Tracklist(
 
     /** Returns a Pair of the next track coupled with its duration in seconds. */
     private fun Iterator<PlaylistTrack>.nextWithDurationSeconds() =
-        with(next()) { Pair(this, track.duration_ms.div(1000.0).roundToInt()) }
+        with(next()) { Pair(this, track.duration_ms.div(1000.0).roundToLong()) }
 
     /** Returns true if the track is addable. */
     private fun PlaylistTrackWithDurationSeconds.shouldAdd() =

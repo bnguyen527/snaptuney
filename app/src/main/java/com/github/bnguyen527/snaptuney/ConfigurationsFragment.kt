@@ -83,7 +83,7 @@ class ConfigurationsFragment : Fragment() {
                 val secondSource = secondSourceSpinner.selectedItem as PlaylistSimple
                 findNavController().navigate(
                     ConfigurationsFragmentDirections.actionCreatePlaylist(
-                        durationEditText.text.toString().toInt(),
+                        durationEditText.text.toString().toLong(),
                         firstSource.id,
                         firstSource.owner.id,
                         secondSource.id,
