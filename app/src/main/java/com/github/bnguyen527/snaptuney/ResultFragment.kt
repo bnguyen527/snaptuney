@@ -11,7 +11,9 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.RecyclerView
 import com.github.bnguyen527.snaptuney.databinding.FragmentResultBinding
+import com.github.bnguyen527.snaptuney.databinding.ListItemPlaylistTrackBinding
 import kaaes.spotify.webapi.android.SpotifyError
 import kaaes.spotify.webapi.android.SpotifyService
 import kaaes.spotify.webapi.android.models.PlaylistTrack
@@ -103,6 +105,34 @@ private class Tracklist(
     }
 }
 
+private class PlaylistTrackAdapter(private val tracklist: List<PlaylistTrack>) :
+    RecyclerView.Adapter<PlaylistTrackAdapter.PlaylistTrackViewHolder>() {
+
+    class PlaylistTrackViewHolder(val binding: ListItemPlaylistTrackBinding) :
+        RecyclerView.ViewHolder(binding.root)
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = PlaylistTrackViewHolder(
+        ListItemPlaylistTrackBinding.inflate(
+            LayoutInflater.from(parent.context),
+            parent,
+            false
+        )
+    )
+
+    override fun onBindViewHolder(holder: PlaylistTrackViewHolder, position: Int) {
+        tracklist[position].track.also { track ->
+            holder.binding.apply {
+                playlistTrackTitleTextView.text = track.name
+                playlistTrackArtistsTextView.text = track.artists.joinToString { it.name }
+                playlistTrackDurationTextView.text =
+                    DateUtils.formatElapsedTime(convertMilliToSeconds(track.duration_ms))
+            }
+        }
+    }
+
+    override fun getItemCount() = tracklist.size
+}
+
 class ResultFragment : Fragment() {
     private var _binding: FragmentResultBinding? = null
     private val binding get() = _binding!!
@@ -143,10 +173,11 @@ class ResultFragment : Fragment() {
                 val firstSource = fetchPlaylistTracks(firstSourceOwnerId, firstSourceId)
                 val secondSource = fetchPlaylistTracks(secondSourceOwnerId, secondSourceId)
                 // Switch to Default dispatcher for heavy computation
-                withContext(Dispatchers.Default) {
+                val tracklist = withContext(Dispatchers.Default) {
                     Tracklist(targetDuration, firstSource, secondSource).tracks
                 }
                 Log.i(TAG, "Got tracklist")
+                binding.playlistRecyclerView.adapter = PlaylistTrackAdapter(tracklist)
             }
         }
     }
