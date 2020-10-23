@@ -1,6 +1,7 @@
 package com.github.bnguyen527.snaptuney
 
 import android.os.Bundle
+import android.text.format.DateUtils
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -18,6 +19,91 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import retrofit.RetrofitError
+import kotlin.math.roundToInt
+
+private typealias PlaylistTrackWithDurationSeconds = Pair<PlaylistTrack, Int>
+
+/**
+ * Represents a tracklist to be created object with input sources [firstSource] and [secondSource]
+ * and a target duration of [targetDuration] minutes.
+ */
+private class Tracklist(
+    val targetDuration: Int,
+    val firstSource: List<PlaylistTrack>,
+    val secondSource: List<PlaylistTrack>
+) {
+    // List of playlist tracks, initialized lazily
+    val tracks by lazy { makeTracklist() }
+
+    // Set of unique playlist tracks to make tracklist from
+    private var tracklist = mutableSetOf<PlaylistTrack>()
+    private var secondsToTarget = targetDuration * 60
+    private val firstSourceShuffledIter = firstSource.shuffled().iterator()
+    private val secondSourceShuffledIter = secondSource.shuffled().iterator()
+
+    /**
+     * Returns a list of playlist tracks interleaving input sources [firstSource] and [secondSource]
+     * and totaling no more than [targetDuration] minutes.
+     */
+    fun makeTracklist(): List<PlaylistTrack> {
+        // Don't continue traversing if met target duration
+        while (secondsToTarget > 0 && firstSourceShuffledIter.hasNext() && secondSourceShuffledIter.hasNext()) {
+            var nextTrack = firstSourceShuffledIter.nextWithDurationSeconds()
+            // Find the first addable track from first source
+            while (!nextTrack.shouldAdd() && firstSourceShuffledIter.hasNext()) {
+                nextTrack = firstSourceShuffledIter.nextWithDurationSeconds()
+            }
+            nextTrack.checkThenAdd()
+            nextTrack = secondSourceShuffledIter.nextWithDurationSeconds()
+            // Find the first addable track from second source
+            while (!nextTrack.shouldAdd() && secondSourceShuffledIter.hasNext()) {
+                nextTrack = secondSourceShuffledIter.nextWithDurationSeconds()
+            }
+            nextTrack.checkThenAdd()
+        }
+        // Only check then add the remaining tracks if target duration not met yet
+        if (secondsToTarget > 0) {
+            // Check which source still has more tracks, then check then add the remaining
+            while (firstSourceShuffledIter.hasNext()) {
+                firstSourceShuffledIter.nextWithDurationSeconds().checkThenAdd()
+            }
+            while (secondSourceShuffledIter.hasNext()) {
+                secondSourceShuffledIter.nextWithDurationSeconds().checkThenAdd()
+            }
+        }
+        Log.d(
+            TAG,
+            "Tracklist of ${tracklist.size} track(s) and of length ${
+                DateUtils.formatElapsedTime(
+                    targetDuration.times(60).minus(secondsToTarget).toLong()
+                )
+            }"
+        )
+        Log.i(TAG, "Tracklist initialized")
+        return tracklist.toList()
+    }
+
+    /** Returns a Pair of the next track coupled with its duration in seconds. */
+    private fun Iterator<PlaylistTrack>.nextWithDurationSeconds() =
+        with(next()) { Pair(this, track.duration_ms.div(1000.0).roundToInt()) }
+
+    /** Returns true if the track is addable. */
+    private fun PlaylistTrackWithDurationSeconds.shouldAdd() =
+        // If not yet added and duration wouldn't make playlist exceed target duration
+        !tracklist.contains(first) && second <= secondsToTarget
+
+    /** Checks if track is addable and if so, add it. */
+    private fun PlaylistTrackWithDurationSeconds.checkThenAdd() {
+        if (shouldAdd()) {
+            tracklist.add(first)
+            secondsToTarget -= second
+        }
+    }
+
+    companion object {
+        private val TAG = Tracklist::class.java.simpleName
+    }
+}
 
 class ResultFragment : Fragment() {
     private var _binding: FragmentResultBinding? = null
@@ -56,8 +142,13 @@ class ResultFragment : Fragment() {
         Log.i(TAG, "Received input configurations")
         lifecycleScope.launch {
             with(configurations) {
-                fetchPlaylistTracks(firstSourceOwnerId, firstSourceId)
-                fetchPlaylistTracks(secondSourceOwnerId, secondSourceId)
+                val firstSource = fetchPlaylistTracks(firstSourceOwnerId, firstSourceId)
+                val secondSource = fetchPlaylistTracks(secondSourceOwnerId, secondSourceId)
+                // Switch to Default dispatcher for heavy computation
+                withContext(Dispatchers.Default) {
+                    Tracklist(targetDuration, firstSource, secondSource).tracks
+                }
+                Log.i(TAG, "Got tracklist")
             }
         }
     }
