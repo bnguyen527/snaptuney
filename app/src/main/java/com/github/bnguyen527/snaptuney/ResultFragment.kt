@@ -108,26 +108,34 @@ private class Tracklist(
 private class PlaylistTrackAdapter(private val tracklist: List<PlaylistTrack>) :
     RecyclerView.Adapter<PlaylistTrackAdapter.PlaylistTrackViewHolder>() {
 
-    class PlaylistTrackViewHolder(val binding: ListItemPlaylistTrackBinding) :
-        RecyclerView.ViewHolder(binding.root)
+    class PlaylistTrackViewHolder private constructor(private val binding: ListItemPlaylistTrackBinding) :
+        RecyclerView.ViewHolder(binding.root) {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = PlaylistTrackViewHolder(
-        ListItemPlaylistTrackBinding.inflate(
-            LayoutInflater.from(parent.context),
-            parent,
-            false
-        )
-    )
-
-    override fun onBindViewHolder(holder: PlaylistTrackViewHolder, position: Int) {
-        tracklist[position].track.also { track ->
-            holder.binding.apply {
-                playlistTrackTitleTextView.text = track.name
-                playlistTrackArtistsTextView.text = track.artists.joinToString { it.name }
-                playlistTrackDurationTextView.text =
-                    DateUtils.formatElapsedTime(convertMilliToSeconds(track.duration_ms))
+        fun bind(playlistTrack: PlaylistTrack) {
+            playlistTrack.track.let { track ->
+                binding.apply {
+                    playlistTrackTitleTextView.text = track.name
+                    playlistTrackArtistsTextView.text = track.artists.joinToString { it.name }
+                    playlistTrackDurationTextView.text =
+                        DateUtils.formatElapsedTime(convertMilliToSeconds(track.duration_ms))
+                }
             }
         }
+
+        companion object {
+            fun from(parent: ViewGroup) = PlaylistTrackViewHolder(
+                ListItemPlaylistTrackBinding.inflate(
+                    LayoutInflater.from(parent.context), parent, false
+                )
+            )
+        }
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
+        PlaylistTrackViewHolder.from(parent)
+
+    override fun onBindViewHolder(holder: PlaylistTrackViewHolder, position: Int) {
+        holder.bind(tracklist[position])
     }
 
     override fun getItemCount() = tracklist.size
