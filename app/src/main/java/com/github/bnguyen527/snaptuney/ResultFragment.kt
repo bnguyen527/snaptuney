@@ -48,28 +48,13 @@ private class Tracklist(
     fun makeTracklist(): List<PlaylistTrack> {
         // Don't continue traversing if met target duration
         while (secondsToTarget > 0 && firstSourceShuffledIter.hasNext() && secondSourceShuffledIter.hasNext()) {
-            var nextTrack = firstSourceShuffledIter.nextWithDurationSeconds()
-            // Find the first addable track from first source
-            while (!nextTrack.shouldAdd() && firstSourceShuffledIter.hasNext()) {
-                nextTrack = firstSourceShuffledIter.nextWithDurationSeconds()
-            }
-            nextTrack.checkThenAdd()
-            nextTrack = secondSourceShuffledIter.nextWithDurationSeconds()
-            // Find the first addable track from second source
-            while (!nextTrack.shouldAdd() && secondSourceShuffledIter.hasNext()) {
-                nextTrack = secondSourceShuffledIter.nextWithDurationSeconds()
-            }
-            nextTrack.checkThenAdd()
+            firstSourceShuffledIter.addNextAddable()
+            secondSourceShuffledIter.addNextAddable()
         }
         // Only check then add the remaining tracks if target duration not met yet
         if (secondsToTarget > 0) {
-            // Check which source still has more tracks, then check then add the remaining
-            while (firstSourceShuffledIter.hasNext()) {
-                firstSourceShuffledIter.nextWithDurationSeconds().checkThenAdd()
-            }
-            while (secondSourceShuffledIter.hasNext()) {
-                secondSourceShuffledIter.nextWithDurationSeconds().checkThenAdd()
-            }
+            firstSourceShuffledIter.addRemainingAddables()
+            secondSourceShuffledIter.addRemainingAddables()
         }
         Log.d(
             TAG,
@@ -83,7 +68,22 @@ private class Tracklist(
 
     /** Returns a Pair of the next track coupled with its duration in seconds. */
     private fun Iterator<PlaylistTrack>.nextWithDurationSeconds() =
-        with(next()) { Pair(this, track.duration_ms.div(1000.0).roundToLong()) }
+        with(next()) { Pair(this, convertMilliToSeconds(track.duration_ms)) }
+
+    /** Adds the next (if any) addable track from this source to the tracklist. */
+    private fun Iterator<PlaylistTrack>.addNextAddable() {
+        var nextTrack = nextWithDurationSeconds()
+        // Find the first addable track from first source
+        while (!nextTrack.shouldAdd() && hasNext()) {
+            nextTrack = nextWithDurationSeconds()
+        }
+        nextTrack.checkThenAdd()
+    }
+
+    /** Adds all of the remaining (if any) addable tracks from this source to the tracklist. */
+    private fun Iterator<PlaylistTrack>.addRemainingAddables() {
+        while (hasNext()) nextWithDurationSeconds().checkThenAdd()
+    }
 
     /** Returns true if the track is addable. */
     private fun PlaylistTrackWithDurationSeconds.shouldAdd() =
@@ -187,3 +187,5 @@ class ResultFragment : Fragment() {
         )
     }
 }
+
+private fun convertMilliToSeconds(milli: Long) = milli.div(1000.0).roundToLong()
