@@ -147,6 +147,8 @@ class ResultFragment : Fragment() {
     // Reference to SpotifyService object from MainActivity
     private var _spotify: SpotifyService? = null
     private val spotify get() = _spotify!!
+    private lateinit var currentUserId: String
+    private lateinit var appPlaylistId: String
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -159,13 +161,8 @@ class ResultFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.apply {
-            savePlaylistButton.setOnClickListener {
-                Toast.makeText(context, "Saved to Spotify!", Toast.LENGTH_SHORT).show()
-            }
-            newConfigurationsButton.setOnClickListener {
-                findNavController().navigate(ResultFragmentDirections.actionNewConfigurations())
-            }
+        binding.newConfigurationsButton.setOnClickListener {
+            findNavController().navigate(ResultFragmentDirections.actionNewConfigurations())
         }
     }
 
@@ -185,7 +182,10 @@ class ResultFragment : Fragment() {
                     Tracklist(targetDuration, firstSource, secondSource).tracks
                 }
                 Log.i(TAG, "Got tracklist")
-                binding.playlistRecyclerView.adapter = PlaylistTrackAdapter(tracklist)
+                binding.apply {
+                    playlistRecyclerView.adapter = PlaylistTrackAdapter(tracklist)
+                    savePlaylistButton.setOnClickListener { onSavePlaylist(tracklist) }
+                }
             }
         }
     }
@@ -207,6 +207,93 @@ class ResultFragment : Fragment() {
                 emptyList<PlaylistTrack>()
             }
         }
+
+    /** Saves playlist of tracks as in [tracklist] and display corresponding responsive UI message. */
+    private fun onSavePlaylist(tracklist: List<PlaylistTrack>) {
+        lifecycleScope.launch {
+            Toast.makeText(
+                context,
+                if (savePlaylist(tracklist))
+                    getString(R.string.save_playlist_success_toast_text)
+                else
+                    getString(R.string.save_playlist_failed_toast_text),
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
+
+    /**
+     * Replaces tracks in app playlist with new tracklist as in [tracklist] after fetching current
+     * user's ID and creating app playlist if necessary and returns true if no error has occurred.
+     */
+    private suspend fun savePlaylist(tracklist: List<PlaylistTrack>) = withContext(Dispatchers.IO) {
+        try {
+            checkAndFetchCurrentUserId()
+            checkAndCreateAppPlaylist()
+            overwriteAppPlaylist(tracklist)
+            true
+        } catch (error: RetrofitError) {
+            Log.e(TAG, SpotifyError.fromRetrofitError(error).toString())
+            false
+        }
+    }
+
+    /**
+     * Fetches current user's ID from Spotify and store it in appropriate member variable if it does
+     * not exist yet.
+     *
+     * @throws RetrofitError
+     */
+    private fun checkAndFetchCurrentUserId() {
+        if (!::currentUserId.isInitialized) {
+            Log.i(TAG, "Fetching current user's ID")
+            currentUserId = spotify.me.id
+            Log.i(TAG, "Got current user's ID")
+        } else {
+            Log.i(TAG, "Using cached current user's ID")
+        }
+        Log.d(TAG, "Current user's ID: $currentUserId")
+    }
+
+    /**
+     * Creates app playlist in Spotify and store its ID in appropriate member variable if it does
+     * not exist yet.
+     *
+     * @throws RetrofitError
+     */
+    private fun checkAndCreateAppPlaylist() {
+        if (!::appPlaylistId.isInitialized) {
+            Log.i(TAG, "Creating app playlist")
+            appPlaylistId = spotify.createPlaylist(
+                currentUserId,
+                mapOf(
+                    "name" to getString(R.string.app_name),
+                    "public" to false,
+                    "description" to getString(R.string.playlist_description)
+                )
+            ).id
+            Log.i(TAG, "Created app playlist")
+        } else {
+            Log.i(TAG, "Using existing app playlist with cached playlist ID")
+        }
+        Log.d(TAG, "App playlist ID: $appPlaylistId")
+    }
+
+    /**
+     * Replaces app playlist in Spotify with tracks as in [newTracklist].
+     *
+     * @throws RetrofitError
+     */
+    private fun overwriteAppPlaylist(newTracklist: List<PlaylistTrack>) {
+        Log.i(TAG, "Overwriting app playlist with new tracklist")
+        spotify.replaceTracksInPlaylist(
+            currentUserId,
+            appPlaylistId,
+            null,
+            mapOf("uris" to newTracklist.map { it.track.uri })
+        )
+        Log.i(TAG, "Overwritten app playlist with new tracklist")
+    }
 
     override fun onDestroyView() {
         super.onDestroyView()
