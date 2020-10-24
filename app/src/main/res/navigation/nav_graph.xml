@@ -24,7 +24,7 @@
             app:destination="@id/configurationsFragment" />
         <argument
             android:name="targetDuration"
-            app:argType="integer" />
+            app:argType="long" />
         <argument
             android:name="firstSourceId"
             app:argType="string" />

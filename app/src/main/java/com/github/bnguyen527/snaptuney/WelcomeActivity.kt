@@ -76,7 +76,11 @@ class WelcomeActivity : AppCompatActivity() {
         const val EXTRA_ACCESS_TOKEN = "com.github.bnguyen527.snaptuney.EXTRA_ACCESS_TOKEN"
         private const val CLIENT_ID = "cceb1c861c3a4cbfb6de3c67dfc32179"
         private const val REDIRECT_URI = "com.github.bnguyen527.snaptuney://callback"
-        private val AUTH_SCOPES = listOf("playlist-read-private", "playlist-read-collaborative")
+        private val AUTH_SCOPES = listOf(
+            "playlist-read-private",
+            "playlist-read-collaborative",
+            "playlist-modify-private"
+        )
         private const val REQUEST_CODE = 1337
     }
 }

@@ -10,6 +10,9 @@
     <string name="login_failed_toast_text">Login failed!</string>
     <string name="login_canceled_toast_text">Login canceled</string>
     <string name="login_success_toast_text">Logged in successfully!</string>
+    <string name="playlist_description">Created by SnapTuney.</string>
+    <string name="save_playlist_success_toast_text">Saved playlist successfully!</string>
+    <string name="save_playlist_failed_toast_text">Saving playlist failed!</string>
     <plurals name="playlist_dropdown_track_total_text_view_text">
         <item quantity="one">%d track</item>
         <item quantity="other">%d tracks</item>
